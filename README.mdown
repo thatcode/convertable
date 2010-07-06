@@ -1,0 +1,24 @@
+# Convertable Behaviour
+
+Ever had data in one format, yet wanted to save it in the db in another? This behaviour will deal with that for you!
+
+## Usage
+
+In your model:
+    var $actsAs = array('Convertable.Convertable' => array(
+        'field' => array(
+            'beforeSave' => 'convertToDbFormatFunction',
+            'afterFind' => 'convertFromDbFormatFunction'
+        )
+    ));
+
+e.g.
+I like storing IP addresses as integers, but am normally given them as 123.123.123.123 format.
+    var $actsAs = array('Convertable.Convertable' => array(
+        'field' => array(
+            'beforeSave' => 'ipToLong',
+            'afterFind' => 'longToIp'
+        )
+    ));
+
+The call back functions can be defined on your model, or one of the default behaviour call backs, or be a standalone function.
