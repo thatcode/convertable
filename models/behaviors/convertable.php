@@ -39,20 +39,27 @@ class ConvertableBehavior extends ModelBehavior {
     }
 
     function afterFind(&$model, $results) {
-        if (isset($results[$model->alias])) {
-            foreach ($results[$model->alias] as $field => &$value) {
-                if (is_array($value)) {
-                    foreach ($value as $field => &$val) {
-                        if (!is_array($val) && isset($this->__settings[$model->alias][$field]['afterFind'])) {
-                            $val = $this->_triggerCallback($model, $this->__settings[$model->alias][$field]['afterFind'], $val);
-                        }
+        foreach ($results as &$result) {
+            if (isset($result[$model->alias])) {
+                foreach ($result[$model->alias] as $field => &$value) {
+                    if (isset($this->__settings[$model->alias][$field]['afterFind'])) {
+                        $value = $this->_triggerCallback($model, $this->__settings[$model->alias][$field]['afterFind'], $value);
                     }
-                } elseif (isset($this->__settings[$model->alias][$field]['afterFind'])) {
-                    $value = $this->_triggerCallback($model, $this->__settings[$model->alias][$field]['afterFind'], $value);
                 }
             }
         }
         return $results;
+    }
+
+    function afterSave(&$model) {
+        $data = array_intersect_key($model->data[$model->alias], $this->__settings[$model->alias]);
+        foreach ($data as $field => &$value) {
+            if (isset($this->__settings[$model->alias][$field]['afterFind'])) {
+                $value = $this->_triggerCallback($model, $this->__settings[$model->alias][$field]['afterFind'], $value);
+            }
+        }
+        $model->data[$model->alias] = array_merge($model->data[$model->alias], $data);
+        return true;
     }
 
     function _triggerCallback(&$model, $callback, $value) {
@@ -61,7 +68,7 @@ class ConvertableBehavior extends ModelBehavior {
         } elseif (method_exists($this, $callback)) {
             $value = $this->{$callback}($value);
         } elseif (function_exists($callback)) {
-            $value = {$callback}($value);
+            $value = $callback($value);
         }
         return $value;
     }
@@ -81,5 +88,27 @@ class ConvertableBehavior extends ModelBehavior {
             ($_ip[3] * 256) +
             ($_ip[4])
         );
+    }
+
+    function longToIp($long) {
+        if (!is_numeric($long) || 0 > $long || 4294967295 < $long) {
+            return $long;
+        }
+        $ip = array();
+        $ipt = $long % 256;
+        $long -= $ipt;
+        $long /= 256;
+        array_unshift($ip, $ipt);
+        $ipt = $long % 256;
+        $long -= $ipt;
+        $long /= 256;
+        array_unshift($ip, $ipt);
+        $ipt = $long % 256;
+        $long -= $ipt;
+        $long /= 256;
+        array_unshift($ip, $ipt);
+        $ipt = $long % 256;
+        array_unshift($ip, $ipt);
+        return implode('.', $ip);
     }
 }
