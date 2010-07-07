@@ -19,7 +19,7 @@ class ConvertableBehavior extends ModelBehavior {
                     continue;
                 }
                 if (isset($this->__settings[$model->alias][$field[1]]['beforeSave'])) {
-                    $value = $this->_triggerCallback($model, $this->__settings[$model->alias][$field]['beforeSave'], $value);
+                    $value = $this->_triggerCallback($model, $this->__settings[$model->alias][$field[1]]['beforeSave'], $value);
                 }
             }
             $queryData['conditions'] = $conditions;
