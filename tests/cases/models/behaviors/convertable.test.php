@@ -25,7 +25,9 @@ class NonConvertableModel extends Model {
 
 class ConvertableTestCase extends CakeTestCase {
 
-    var $fixtures = array('plugin.convertable.convertable');
+    var $fixtures = array(
+        'plugin.convertable.convertable'
+    );
 
     function startTest() {
         $this->Convertable = ClassRegistry::init('ConvertableModel');
