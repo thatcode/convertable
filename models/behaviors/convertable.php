@@ -66,14 +66,14 @@ class ConvertableBehavior extends ModelBehavior {
         if (method_exists($model, $callback)) {
             $value = $model->{$this->__settings[$model->alias][$field]['beforeSave']}($value);
         } elseif (method_exists($this, $callback)) {
-            $value = $this->{$callback}($value);
+            $value = $this->{$callback}($model, $value);
         } elseif (function_exists($callback)) {
             $value = $callback($value);
         }
         return $value;
     }
 
-    function ipToLong($ip) {
+    function ipToLong(&$model, $ip) {
         if (!preg_match('#^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$#', $ip, $_ip)) {
             return $ip;
         }
@@ -90,7 +90,7 @@ class ConvertableBehavior extends ModelBehavior {
         );
     }
 
-    function longToIp($long) {
+    function longToIp(&$model, $long) {
         if (!is_numeric($long) || 0 > $long || 4294967295 < $long) {
             return $long;
         }
